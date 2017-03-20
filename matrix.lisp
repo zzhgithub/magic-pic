@@ -107,3 +107,30 @@
   (set-png-object file)
   (check-object-and-do-funcation #'save-output))
 ;;todo 解决输出时斜着的问题
+(defun ratate-mirror (bitmap)
+  (let ((outmap (make-array (reverse (get-size)) :initial-element 0)))
+    (dotimes (i (png-read:width *png-object*))
+      (dotimes (j (png-read:height *png-object*))
+        (setf (aref outmap
+                    ;(- (png-read:height *png-object*) (+ j 1))
+                    j
+                    i
+                    ;(- (png-read:width  *png-object*) (+ i 1))
+                    )
+              (aref bitmap i j))))
+    outmap))
+
+;;修复后的保存方法
+(defun save-output-fix (&optional (file "output-fix"))
+  (let ((output (ratate-mirror (get-string-bitmap (safe-png->bitmap)))))
+    (with-open-file (out file
+                         :direction :output
+                         :if-exists :supersede)
+      (dotimes (i (png-read:height *png-object*))
+        (dotimes (j (png-read:width *png-object*))
+          (format out "~A" (aref output i j)))
+        (format out "~%")))))
+;; 修复后的入口方法
+(defun magic-pic-png-fix (file)
+  (set-png-object file)
+  (check-object-and-do-funcation #'save-output-fix))
