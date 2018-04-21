@@ -77,6 +77,8 @@ Please use funcation `set-png-object' to assign a value." *png-object*))
             do (setf (gethash i hash) val)
             finally (return hash))))
 
+(declaim  (inline get-string))
+
 (defun get-string (i)
   (declare (optimize (speed 3)) (fixnum i))
   (or (gethash i *char-hash-map*) "@"))
